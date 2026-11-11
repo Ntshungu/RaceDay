@@ -1,0 +1,14 @@
+@model EventVm
+@{ ViewData["Title"]=Model.Name; }
+<a asp-action="Index">← Back to events</a>
+<div class="row mt-3">
+<div class="col-lg-7">
+@if(!string.IsNullOrWhiteSpace(Model.BannerImageUrl)){<img src="@Model.BannerImageUrl" class="img-fluid rounded-4 mb-3" alt="Event banner">}
+<h1>@Model.Name</h1><p class="lead">@Model.Description</p>
+<p><strong>Date:</strong> @Model.EventDate.ToString("dd MMMM yyyy")</p><p><strong>Location:</strong> @Model.Location</p><p><strong>Distance:</strong> @Model.Distance km</p><p><strong>Type:</strong> @Model.EventType</p>
+</div>
+<div class="col-lg-5"><div class="card p-3"><h4>Available categories</h4>
+@if(Model.Categories.Count==0){<p>No categories have been added yet.</p>}
+@foreach(var c in Model.Categories){<div class="border rounded p-2 mb-2"><strong>@c.CategoryName</strong><p class="mb-1">@c.Description</p>
+<form asp-action="Enrol" method="post"><input type="hidden" name="eventId" value="@Model.EventId"><input type="hidden" name="categoryId" value="@c.CategoryId"><button class="btn btn-warning btn-sm">Enter this event</button></form></div>}
+</div></div></div>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RaceDay.API.Controllers;
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
@@ -44,7 +44,8 @@ public class EventTests
         var db = TestHelpers.NewDb(nameof(Jarred_AsParticipant_IsForbidden_FromCreatingEvent));
         var ctrl = new EventsController(db).WithSession(TestHelpers.JarredParticipant());
         var result = await ctrl.Create(JarredsEvent());
-        Assert.IsType<ForbidResult>(result);
+        var forbidden = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(403, forbidden.StatusCode);
     }
 
     [Fact]
@@ -111,7 +112,8 @@ public class EventTests
 
         var ctrl = new EventsController(db).WithSession(TestHelpers.JarredOrganiser());
         var result = await ctrl.Update(1, JarredsEvent());
-        Assert.IsType<ForbidResult>(result);
+        var forbidden = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(403, forbidden.StatusCode);
     }
 
     [Fact]

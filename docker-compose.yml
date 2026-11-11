@@ -1,0 +1,24 @@
+services:
+  raceday-api:
+    build:
+      context: .
+      dockerfile: RaceDay.API/Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Server=host.docker.internal;Database=RaceDayDB;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True"
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET}
+  raceday-mvc:
+    build:
+      context: .
+      dockerfile: RaceDay.MVC/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ApiSettings__BaseUrl: http://raceday-api:8080/
+    depends_on:
+      - raceday-api

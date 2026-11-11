@@ -1,0 +1,6 @@
+@model List<EnrolmentVm>
+@{ ViewData["Title"]="My enrolments"; }
+<h1>My event enrolments</h1><p class="text-muted">Your registered events and selected categories.</p>
+<div class="table-responsive"><table class="table"><thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Status</th></tr></thead><tbody>
+@foreach(var e in Model){<tr><td>@(e.Event?.Name ?? $"Event #{e.EventId}")</td><td>@(e.Event?.EventDate.ToString("dd MMM yyyy") ?? "—")</td><td>@(e.Category?.CategoryName ?? "—")</td><td><span class="badge @(e.Status == "Confirmed" ? "text-bg-success" : e.Status == "Pending" ? "text-bg-warning" : "text-bg-secondary")">@e.Status</span></td></tr>}
+</tbody></table></div>

@@ -1,0 +1,9 @@
+@model List<EnrolmentVm>
+@{ ViewData["Title"]="Event enrolments"; }
+<h1>Event enrolments and results</h1><p>Event ID: @ViewBag.EventId</p>
+@if(!string.IsNullOrEmpty(ViewBag.Error)){<div class="alert alert-warning">@ViewBag.Error</div>}
+<div class="table-responsive"><table class="table"><thead><tr><th>Participant</th><th>Category</th><th>Status/result</th><th>Capture result</th></tr></thead><tbody>
+@foreach(var e in Model){<tr><td>@(e.User?.FullName ?? $"Participant #{e.UserId}")</td><td>@(e.Category?.CategoryName ?? $"Category #{e.CategoryId}")</td><td>@(e.Result==null?"Awaiting result":$"{e.Result.FinishTime} — position {e.Result.FinishingPosition}")</td><td>
+@if(e.Result==null){<form asp-action="CaptureResult" method="post" class="d-flex gap-1 flex-wrap"><input type="hidden" name="EnrolmentId" value="@e.EnrolmentId"><input type="hidden" name="eventId" value="@ViewBag.EventId"><input name="FinishTime" class="form-control form-control-sm" placeholder="hh:mm:ss" value="00:45:00" style="width:110px"><input name="FinishingPosition" type="number" min="1" value="1" class="form-control form-control-sm" style="width:75px"><button class="btn btn-sm btn-primary">Save</button></form>}
+</td></tr>}
+</tbody></table></div>

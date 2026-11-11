@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
@@ -36,10 +36,11 @@ public class EventsController : ControllerBase
     [HttpGet("my-events")]
     public async Task<IActionResult> MyEvents()
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var events = await _db.Events.Include(e => e.Categories)
+                                     .Include(e => e.Enrolments)
                                      .Where(e => e.OrganiserId == uid)
                                      .OrderBy(e => e.EventDate)
                                      .ToListAsync();
@@ -49,7 +50,7 @@ public class EventsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] EventDto dto)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         if (!IsValid(dto)) return BadRequest(new { message = "Enter valid event details." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
@@ -73,13 +74,13 @@ public class EventsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] EventDto dto)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         if (!IsValid(dto)) return BadRequest(new { message = "Enter valid event details." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var ev = await _db.Events.FindAsync(id);
         if (ev is null) return NotFound();
-        if (ev.OrganiserId != uid) return Forbid();   // cannot touch others' events
+        if (ev.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });   // cannot touch others' events
 
         ev.Name = dto.Name;
         ev.Description = dto.Description;
@@ -95,12 +96,12 @@ public class EventsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var ev = await _db.Events.FindAsync(id);
         if (ev is null) return NotFound();
-        if (ev.OrganiserId != uid) return Forbid();
+        if (ev.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         if (await _db.Enrolments.AnyAsync(e => e.EventId == id))
             return Conflict(new { message = "Cannot delete an event that has enrolments." });

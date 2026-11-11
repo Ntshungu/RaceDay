@@ -1,0 +1,11 @@
+@model EventFormVm
+@{ ViewData["Title"]=ViewContext.RouteData.Values["action"]?.ToString()+" event"; }
+<h1>@ViewData["Title"]</h1><div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form method="post" enctype="multipart/form-data" class="card p-4">
+<input type="hidden" asp-for="EventId"><input type="hidden" asp-for="BannerImageUrl">
+<div class="mb-3"><label asp-for="Name" class="form-label">Event name</label><input asp-for="Name" class="form-control" required maxlength="150"></div>
+<div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+<div class="row"><div class="col-md-6 mb-3"><label asp-for="EventDate" class="form-label"></label><input asp-for="EventDate" type="date" class="form-control" required></div><div class="col-md-6 mb-3"><label asp-for="Location" class="form-label"></label><input asp-for="Location" class="form-control" required></div></div>
+<div class="row"><div class="col-md-6 mb-3"><label asp-for="Distance" class="form-label">Distance (km)</label><input asp-for="Distance" type="number" step="0.1" min="0.1" class="form-control" required></div><div class="col-md-6 mb-3"><label asp-for="EventType" class="form-label"></label><select asp-for="EventType" class="form-select"><option>Run</option><option>Walk</option><option>Cycle</option></select></div></div>
+<div class="mb-3"><label class="form-label">Event banner image</label><input asp-for="BannerImage" type="file" accept="image/*" class="form-control"><small class="text-muted">Image is uploaded through the API to the configured Cloudinary account.</small></div>
+<button class="btn btn-primary">Save event</button></form>

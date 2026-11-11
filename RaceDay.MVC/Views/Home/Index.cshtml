@@ -1,0 +1,17 @@
+@model List<EventVm>
+@{ ViewData["Title"]="Home"; }
+<section class="hero p-5 mb-4 rounded-4 text-white">
+<h1 class="display-5 fw-bold">Every race has a story.</h1>
+<p class="lead">Discover running, walking and cycling events across South Africa.</p>
+<a class="btn btn-warning btn-lg" asp-controller="Events" asp-action="Index">Explore events</a>
+</section>
+<h2 class="mb-3">Upcoming events</h2>
+@if (!string.IsNullOrEmpty(ViewBag.Error)) { <div class="alert alert-warning">@ViewBag.Error</div> }
+<div class="row g-3">
+@foreach(var e in Model.Where(x=>x.EventDate>=DateTime.Today).Take(6)) {
+<div class="col-md-4"><div class="card event-card h-100">
+@if(!string.IsNullOrWhiteSpace(e.BannerImageUrl)){<img src="@e.BannerImageUrl" class="card-img-top event-img" alt="Event banner">}
+<div class="card-body"><span class="badge text-bg-dark">@e.EventType</span><h5 class="mt-2">@e.Name</h5><p>@e.Location • @e.Distance km</p><p>@e.EventDate.ToString("dd MMM yyyy")</p><a class="btn btn-primary" asp-controller="Events" asp-action="Details" asp-route-id="@e.EventId">View event</a></div>
+</div></div>
+}
+</div>

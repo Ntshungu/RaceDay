@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
@@ -31,12 +31,12 @@ public class CategoriesController : ControllerBase
     [HttpPost("events/{eventId}/categories")]
     public async Task<IActionResult> Create(int eventId, [FromBody] CategoryDto dto)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var ev = await _db.Events.FindAsync(eventId);
         if (ev is null) return NotFound();
-        if (ev.OrganiserId != uid) return Forbid();
+        if (ev.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         if (dto is null || string.IsNullOrWhiteSpace(dto.CategoryName))
             return BadRequest(new { message = "Category name is required." });
@@ -59,11 +59,11 @@ public class CategoriesController : ControllerBase
     [HttpPut("categories/{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] CategoryDto dto)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var cat = await _db.Categories.Include(c => c.Event)
                                       .FirstOrDefaultAsync(c => c.CategoryId == id);
         if (cat is null) return NotFound();
-        if (cat.Event!.OrganiserId != HttpContext.Session.GetUser()!.UserId) return Forbid();
+        if (cat.Event!.OrganiserId != HttpContext.Session.GetUser()!.UserId) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         if (dto is null || string.IsNullOrWhiteSpace(dto.CategoryName))
             return BadRequest(new { message = "Category name is required." });
 
@@ -81,11 +81,11 @@ public class CategoriesController : ControllerBase
     [HttpDelete("categories/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var cat = await _db.Categories.Include(c => c.Event)
                                       .FirstOrDefaultAsync(c => c.CategoryId == id);
         if (cat is null) return NotFound();
-        if (cat.Event!.OrganiserId != HttpContext.Session.GetUser()!.UserId) return Forbid();
+        if (cat.Event!.OrganiserId != HttpContext.Session.GetUser()!.UserId) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         if (await _db.Enrolments.AnyAsync(e => e.CategoryId == id))
             return Conflict(new { message = "Cannot delete a category that has enrolments." });

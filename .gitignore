@@ -13,3 +13,14 @@ TestResults/
 # Local settings and secrets
 appsettings.Local.json
 .env
+
+# Additional Visual Studio files
+*.rsuser
+*.user
+*.suo
+
+# Local configuration and secrets
+**/appsettings.Development.json
+**/secrets.json
+.env
+.env.*

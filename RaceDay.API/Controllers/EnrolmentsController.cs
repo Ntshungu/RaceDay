@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
@@ -17,7 +17,7 @@ public class EnrolmentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Enrol([FromBody] EnrolmentDto dto)
     {
-        if (!HttpContext.Session.IsParticipant()) return Forbid();
+        if (!HttpContext.Session.IsParticipant()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         if (!await _db.Events.AnyAsync(e => e.EventId == dto.EventId))
@@ -43,7 +43,7 @@ public class EnrolmentsController : ControllerBase
     [HttpGet("my-enrolments")]
     public async Task<IActionResult> MyEnrolments()
     {
-        if (!HttpContext.Session.IsParticipant()) return Forbid();
+        if (!HttpContext.Session.IsParticipant()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var list = await _db.Enrolments
@@ -58,12 +58,12 @@ public class EnrolmentsController : ControllerBase
     [HttpGet("/api/events/{eventId}/enrolments")]
     public async Task<IActionResult> EventEnrolments(int eventId)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var ev = await _db.Events.FindAsync(eventId);
         if (ev is null) return NotFound();
-        if (ev.OrganiserId != uid) return Forbid();
+        if (ev.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         var list = await _db.Enrolments
             .Include(e => e.User)
@@ -77,12 +77,12 @@ public class EnrolmentsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Cancel(int id)
     {
-        if (!HttpContext.Session.IsParticipant()) return Forbid();
+        if (!HttpContext.Session.IsParticipant()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var enr = await _db.Enrolments.FindAsync(id);
         if (enr is null) return NotFound();
-        if (enr.UserId != uid) return Forbid();
+        if (enr.UserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         _db.Enrolments.Remove(enr);
         await _db.SaveChangesAsync();

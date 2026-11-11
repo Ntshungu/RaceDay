@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
@@ -17,7 +17,7 @@ public class ResultsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Capture([FromBody] ResultDto dto)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         if (dto is null || dto.FinishTime <= TimeSpan.Zero || dto.FinishingPosition <= 0)
             return BadRequest(new { message = "Finish time and finishing position must be positive." });
         var uid = HttpContext.Session.GetUser()!.UserId;
@@ -26,7 +26,7 @@ public class ResultsController : ControllerBase
             .Include(e => e.Event)
             .FirstOrDefaultAsync(e => e.EnrolmentId == dto.EnrolmentId);
         if (enr is null) return NotFound();
-        if (enr.Event!.OrganiserId != uid) return Forbid();
+        if (enr.Event!.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         if (await _db.Results.AnyAsync(r => r.EnrolmentId == dto.EnrolmentId))
             return Conflict(new { message = "Result already captured for this enrolment." });
@@ -45,7 +45,7 @@ public class ResultsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ResultDto dto)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         if (dto is null || dto.FinishTime <= TimeSpan.Zero || dto.FinishingPosition <= 0)
             return BadRequest(new { message = "Finish time and finishing position must be positive." });
         var uid = HttpContext.Session.GetUser()!.UserId;
@@ -54,7 +54,7 @@ public class ResultsController : ControllerBase
             .Include(r => r.Enrolment)!.ThenInclude(e => e!.Event)
             .FirstOrDefaultAsync(r => r.ResultId == id);
         if (result is null) return NotFound();
-        if (result.Enrolment!.Event!.OrganiserId != uid) return Forbid();
+        if (result.Enrolment!.Event!.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         result.FinishTime = dto.FinishTime;
         result.FinishingPosition = dto.FinishingPosition;
@@ -65,7 +65,7 @@ public class ResultsController : ControllerBase
     [HttpGet("my-results")]
     public async Task<IActionResult> MyResults()
     {
-        if (!HttpContext.Session.IsParticipant()) return Forbid();
+        if (!HttpContext.Session.IsParticipant()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var list = await _db.Results
@@ -89,12 +89,12 @@ public class ResultsController : ControllerBase
     [HttpGet("/api/events/{eventId}/results")]
     public async Task<IActionResult> EventResults(int eventId)
     {
-        if (!HttpContext.Session.IsOrganiser()) return Forbid();
+        if (!HttpContext.Session.IsOrganiser()) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
         var uid = HttpContext.Session.GetUser()!.UserId;
 
         var ev = await _db.Events.FindAsync(eventId);
         if (ev is null) return NotFound();
-        if (ev.OrganiserId != uid) return Forbid();
+        if (ev.OrganiserId != uid) return StatusCode(403, new { message = "Access denied. Please sign in with the correct account and check your permissions." });
 
         var list = await _db.Results
             .Include(r => r.Enrolment)!.ThenInclude(e => e!.User)

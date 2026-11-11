@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RaceDay.API.Controllers;
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
@@ -60,7 +60,8 @@ public class EnrolmentTests
         var (db, eventId, catId) = Seed(nameof(Jarred_AsOrganiser_CannotEnrol));
         var ctrl = new EnrolmentsController(db).WithSession(TestHelpers.JarredOrganiser());
         var result = await ctrl.Enrol(new EnrolmentDto(eventId, catId));
-        Assert.IsType<ForbidResult>(result);
+        var forbidden = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(403, forbidden.StatusCode);
     }
 
     [Fact]

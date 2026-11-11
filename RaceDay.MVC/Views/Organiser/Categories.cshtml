@@ -1,0 +1,5 @@
+@model List<CategoryVm>
+@{ ViewData["Title"]="Event categories"; }
+<h1>Manage categories</h1><p>Event ID: @ViewBag.EventId</p>
+<form asp-action="AddCategory" method="post" class="card p-3 mb-4"><input type="hidden" name="id" value="@ViewBag.EventId"><div class="mb-2"><label class="form-label">Category name</label><input name="CategoryName" class="form-control" required placeholder="e.g. Senior 10km"></div><div class="mb-2"><label class="form-label">Description</label><input name="Description" class="form-control"></div><button class="btn btn-primary">Add category</button></form>
+<ul class="list-group">@foreach(var c in Model){<li class="list-group-item"><strong>@c.CategoryName</strong> — @c.Description</li>}</ul>

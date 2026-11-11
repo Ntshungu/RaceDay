@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RaceDay.API.Controllers;
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
@@ -52,7 +52,8 @@ public class ResultTests
 
         var ctrl = new ResultsController(db).WithSession(TestHelpers.JarredOrganiser());
         var result = await ctrl.Capture(new ResultDto(1, TimeSpan.FromHours(1), 1));
-        Assert.IsType<ForbidResult>(result);
+        var forbidden = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(403, forbidden.StatusCode);
     }
 
     [Fact]
